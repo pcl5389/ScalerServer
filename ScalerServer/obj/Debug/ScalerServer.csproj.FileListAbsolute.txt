@@ -1,0 +1,6 @@
+D:\Projects\ScalerServer\ScalerServer\obj\Debug\ScalerServer.csproj.CoreCompileInputs.cache
+D:\Projects\ScalerServer\ScalerServer\bin\Debug\IIS_Server.exe.config
+D:\Projects\ScalerServer\ScalerServer\bin\Debug\IIS_Server.exe
+D:\Projects\ScalerServer\ScalerServer\bin\Debug\IIS_Server.pdb
+D:\Projects\ScalerServer\ScalerServer\obj\Debug\IIS_Server.exe
+D:\Projects\ScalerServer\ScalerServer\obj\Debug\IIS_Server.pdb

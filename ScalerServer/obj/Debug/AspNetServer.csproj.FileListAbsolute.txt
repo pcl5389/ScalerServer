@@ -1,0 +1,11 @@
+D:\Users\Administrator\Desktop\AspNetServer-master\AspNetServer\bin\Debug\AspNetServer.exe
+D:\Users\Administrator\Desktop\AspNetServer-master\AspNetServer\bin\Debug\AspNetServer.pdb
+D:\Users\Administrator\Desktop\AspNetServer-master\AspNetServer\bin\Debug\Scaler.dll
+D:\Users\Administrator\Desktop\AspNetServer-master\AspNetServer\bin\Debug\Newtonsoft.Json.dll
+D:\Users\Administrator\Desktop\AspNetServer-master\AspNetServer\bin\Debug\VTemplate.Engine.dll
+D:\Users\Administrator\Desktop\AspNetServer-master\AspNetServer\bin\Debug\AjaxPro.2.dll
+D:\Users\Administrator\Desktop\AspNetServer-master\AspNetServer\obj\Debug\AspNetServer.csproj.CoreCompileInputs.cache
+D:\Users\Administrator\Desktop\AspNetServer-master\AspNetServer\obj\Debug\AspNetServer.csproj.CopyComplete
+D:\Users\Administrator\Desktop\AspNetServer-master\AspNetServer\obj\Debug\AspNetServer.exe
+D:\Users\Administrator\Desktop\AspNetServer-master\AspNetServer\obj\Debug\AspNetServer.pdb
+D:\Users\Administrator\Desktop\AspNetServer-master\AspNetServer\obj\Debug\AspNetServer.csprojAssemblyReference.cache

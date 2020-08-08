@@ -1,0 +1,10 @@
+D:\Users\Administrator\Desktop\AspNetServer-master\AspNetServer\bin\Release\AspNetServer.exe
+D:\Users\Administrator\Desktop\AspNetServer-master\AspNetServer\bin\Release\AspNetServer.pdb
+D:\Users\Administrator\Desktop\AspNetServer-master\AspNetServer\obj\Release\AspNetServer.csproj.CoreCompileInputs.cache
+D:\Users\Administrator\Desktop\AspNetServer-master\AspNetServer\obj\Release\AspNetServer.exe
+D:\Users\Administrator\Desktop\AspNetServer-master\AspNetServer\obj\Release\AspNetServer.pdb
+D:\Users\Administrator\Desktop\AspNetServer-master\AspNetServer\bin\Release\Scaler.dll
+D:\Users\Administrator\Desktop\AspNetServer-master\AspNetServer\bin\Release\Newtonsoft.Json.dll
+D:\Users\Administrator\Desktop\AspNetServer-master\AspNetServer\bin\Release\VTemplate.Engine.dll
+D:\Users\Administrator\Desktop\AspNetServer-master\AspNetServer\bin\Release\AjaxPro.2.dll
+D:\Users\Administrator\Desktop\AspNetServer-master\AspNetServer\obj\Release\AspNetServer.csproj.CopyComplete
