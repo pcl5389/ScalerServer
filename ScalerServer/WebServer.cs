@@ -7,75 +7,99 @@ using System.Threading;
 
 namespace ScalerServer
 {
+    [Serializable]
     class WebServer
     {
-        private TcpListener listener;
-
+        private static TcpListener listener;
         private SimpleHost _host;
-
+        public SimpleHost Host { set { _host = value; } }
         public int Port { get; private set; }
-#if CLOSE
-        public bool IsRuning { get; set; }
-#endif
         public WebServer(SimpleHost host, int port)
         {
             _host = host;
             Port = port;
+            _host.OnStartService += Start;
         }
-
+        public void StartService()
+        {
+            try
+            {
+                _host.Start();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
         public void Start()
         {
+            //Console.WriteLine("listener domain:" + System.Threading.Thread.GetDomainID());
+            _host.bStoping = _host.bStoped = false;
             listener = new TcpListener(IPAddress.Any, Port);
             try
             {
-                listener.Start();
+                listener.Start(10000);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message.ToString());
+                Console.ReadLine();
                 return;
             }
             Console.WriteLine("Serving HTTP on 0.0.0.0 port " + Port + " ...");
-            new Thread(OnStart).Start();
-
+            OnStart();
+            //new Thread(OnStart).Start();
         }
         private Semaphore semap = new Semaphore(5, 5000);
-        private void OnStart(object state)
+        private void OnStart() //object state
         {
-            while (true)
+            //Console.WriteLine("while domain:" + System.Threading.Thread.GetDomainID());
+            Console.WriteLine("开始监听");
+            while (listener != null)
             {
-                try
+                if (listener.Pending())
                 {
-                    GetAcceptTcpClient();
+                    listener.BeginAcceptSocket(new AsyncCallback(NewConnect), listener);
                 }
-                catch (Exception ex)
+                else
                 {
-                    Console.WriteLine(ex);
-                    Thread.Sleep(100);
+                    if (_host.bStoping)
+                    {
+                        listener.Stop();
+                        //Console.WriteLine("listen stop domain:" + System.Threading.Thread.GetDomainID());
+                        Console.WriteLine("监听已停止");
+                        _host.bStoped = true;
+                        break;
+                    }
+                    Thread.Sleep(1);
                 }
             }
+            //Console.WriteLine("跳出循环");
         }
         public delegate void AsyncClientHandler(TcpClient client);
-        private void GetAcceptTcpClient()
+       
+        private void NewConnect(IAsyncResult ar)
         {
-            semap.WaitOne();
-            TcpClient tclient = null;
+            //初始化一个SOCKET，用于其它客户端的连接
+            TcpListener server = (TcpListener)ar.AsyncState;
             try
             {
-                tclient = listener.AcceptTcpClient();
+                TcpClient tclient = server.EndAcceptTcpClient(ar);
                 AsyncClientHandler handler = new AsyncClientHandler(AcceptClient);
                 handler.BeginInvoke(tclient, null, handler);
             }
-            catch (SocketException)
+            catch (Exception err)
             {
-                if (tclient != null && tclient.Connected)
+                Console.WriteLine(err.Message);
+                /*
+                 if (tclient != null && tclient.Connected)
                 {
                     tclient.Close();
                 }
                 if (tclient.Client != null)
                     tclient.Client.Dispose();
+                 */
             }
-            semap.Release();
         }
         public void AcceptClient(TcpClient tclient)
         {

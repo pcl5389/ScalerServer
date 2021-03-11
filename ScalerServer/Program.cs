@@ -6,23 +6,39 @@ namespace ScalerServer
 {
     class Program
     {
-        static SimpleHost host;
+        static WebServer server;
+        static string dir = Directory.GetCurrentDirectory();
+        static int port = 9527;
+        
         static void Main(string[] args)
         {
-            int port;
-            string dir = Directory.GetCurrentDirectory();
-            if(args.Length==0 || !int.TryParse(args[0],out port))
-            {
-                port = 9527;
-            }
-
+            _ = args.Length > 0 && int.TryParse(args[0], out port);
             InitHostFile(dir);
-            host= (SimpleHost) ApplicationHost.CreateApplicationHost(typeof (SimpleHost), "/", dir);
-            host.Config("/", dir);
 
-            WebServer server = new WebServer(host, port);
-            server.Start();
+            //Server_OnServiceStop(); //永远不停
+            while(true)
+            {
+                var host = InitHost(dir);
+                //host.OnStopService += Server_OnServiceStop;
+                server = new WebServer(host, port);
+                server.StartService();
+            }
         }
+        private static void Server_OnServiceStop()
+        {
+            var host = InitHost(dir);
+            host.OnStopService += Server_OnServiceStop;
+            server = new WebServer(host, port);
+            server.StartService();
+        }
+
+        private static SimpleHost InitHost(string dir)
+        {
+            SimpleHost host = (SimpleHost)ApplicationHost.CreateApplicationHost(typeof(SimpleHost), "/", dir);
+            host.Config("/", dir);
+            return host;
+        }
+
         //需要拷贝执行文件 才能创建ASP.NET应用程序域
         private static void InitHostFile(string dir)
         {

@@ -117,9 +117,7 @@ namespace ScalerServer
         {
             return _unknownRequestHeaders;
         }
-
         #endregion
-
         public override string GetUriPath()
         {
             return _requestInfo.FilePath;
