@@ -53,8 +53,6 @@ namespace ScalerServer
         private Semaphore semap = new Semaphore(5, 5000);
         private void OnStart() //object state
         {
-            //Console.WriteLine("while domain:" + System.Threading.Thread.GetDomainID());
-            Console.WriteLine("开始监听");
             while (listener != null)
             {
                 if (listener.Pending())
@@ -66,7 +64,6 @@ namespace ScalerServer
                     if (_host.bStoping)
                     {
                         listener.Stop();
-                        //Console.WriteLine("listen stop domain:" + System.Threading.Thread.GetDomainID());
                         Console.WriteLine("监听已停止");
                         _host.bStoped = true;
                         break;
@@ -74,7 +71,6 @@ namespace ScalerServer
                     Thread.Sleep(1);
                 }
             }
-            //Console.WriteLine("跳出循环");
         }
         public delegate void AsyncClientHandler(TcpClient client);
        
@@ -85,8 +81,10 @@ namespace ScalerServer
             try
             {
                 TcpClient tclient = server.EndAcceptTcpClient(ar);
-                AsyncClientHandler handler = new AsyncClientHandler(AcceptClient);
-                handler.BeginInvoke(tclient, null, handler);
+                AcceptClient(tclient);
+                //tclient.
+                //AsyncClientHandler handler = new AsyncClientHandler(AcceptClient);
+                //handler.BeginInvoke(tclient, null, handler);
             }
             catch (Exception err)
             {
