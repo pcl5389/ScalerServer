@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Web;
+using System.Web.Hosting;
 
 namespace ScalerServer
 {
-    public class SimpleHost : MarshalByRefObject
+    public class SimpleHost : MarshalByRefObject, IRegisteredObject
     {
         public string PhysicalDir { get; private set; }
         public string VituralDir { get; private set; }
@@ -12,14 +13,11 @@ namespace ScalerServer
         public delegate void StartService();
         public event StartService OnStartService;
         public event StartService OnStopService;
-        public SimpleHost()
-        {
-            
-        }
 
         private void SimpleHost_DomainUnload(object sender, EventArgs e)
         {
             bStoping = true;
+            WebServer.clientConnected.Set();
             DateTime dtExpired = DateTime.Now.AddSeconds(15);
             while (!bStoped)
             {
@@ -58,6 +56,11 @@ namespace ScalerServer
         public AppDomain GetAppDomain()
         {
             return System.Threading.Thread.GetDomain();
+        }
+
+        public void Stop(bool immediate)
+        {
+            //throw new NotImplementedException();
         }
     }
 }

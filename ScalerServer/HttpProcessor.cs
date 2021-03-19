@@ -145,8 +145,9 @@ namespace ScalerServer
                 if(_socket.Connected)
                     _socket.Send(data, offset, length, SocketFlags.None);
             }
-            catch
+            catch(Exception err)
             {
+                Console.WriteLine("发送数据失败！" + err.Message);
                 Close();
             }
         }

@@ -64,7 +64,6 @@ namespace ScalerServer
             if (ms != null && ms.Length > 0)
             {
                 ms.SetLength(0);
-                ms.Capacity = 0;
                 ms.Dispose();
             }
             Total = 0;
@@ -72,7 +71,7 @@ namespace ScalerServer
             if (Client != null && Client.Connected)
             {
                 Client.Client.Shutdown(SocketShutdown.Both);
-                Client.Close();
+                Client.Client.Close();
             }
             GC.Collect(0, GCCollectionMode.Optimized);
         }

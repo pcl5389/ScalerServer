@@ -81,7 +81,7 @@ namespace ScalerServer
             GZip = Headers["Accept-Encoding"] == null ? false : (Headers["Accept-Encoding"].IndexOf("gzip") != -1);
         }
 
-        public override Object InitializeLifetimeService()
+        public override object InitializeLifetimeService()
         {
             ILease lease = (ILease)base.InitializeLifetimeService();
             if (lease.CurrentState == LeaseState.Initial)

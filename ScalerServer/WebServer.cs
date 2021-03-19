@@ -38,12 +38,11 @@ namespace ScalerServer
             listener = new TcpListener(IPAddress.Any, Port);
             try
             {
-                listener.Start(10000);
+                listener.Start(1000);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message.ToString());
-                Console.ReadLine();
                 return;
             }
             Console.WriteLine("Serving HTTP on 0.0.0.0 port " + Port + " ...");
@@ -51,13 +50,33 @@ namespace ScalerServer
             //new Thread(OnStart).Start();
         }
         private Semaphore semap = new Semaphore(5, 5000);
+        public static ManualResetEvent clientConnected = new ManualResetEvent(false);
         private void OnStart() //object state
         {
+            while(true)
+            {
+                if (_host.bStoping)
+                {
+                    listener.Stop();
+                    Console.WriteLine("监听已停止");
+                    _host.bStoped = true;
+                    break;
+                }
+                //Console.WriteLine("新连接" + DateTime.Now.ToString("HHmmss-fff"));
+                clientConnected.Reset();
+                listener.BeginAcceptSocket(NewConnect, listener);
+                clientConnected.WaitOne();
+            }
+            /*
+            return;
+
+
+
             while (listener != null)
             {
                 if (listener.Pending())
                 {
-                    listener.BeginAcceptSocket(new AsyncCallback(NewConnect), listener);
+                    listener.BeginAcceptSocket(NewConnect, listener);
                 }
                 else
                 {
@@ -70,12 +89,13 @@ namespace ScalerServer
                     }
                     Thread.Sleep(1);
                 }
-            }
+            }*/
         }
         public delegate void AsyncClientHandler(TcpClient client);
        
         private void NewConnect(IAsyncResult ar)
         {
+            clientConnected.Set();
             //初始化一个SOCKET，用于其它客户端的连接
             TcpListener server = (TcpListener)ar.AsyncState;
             try

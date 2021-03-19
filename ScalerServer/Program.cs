@@ -13,7 +13,7 @@ namespace ScalerServer
         static void Main(string[] args)
         {
             _ = args.Length > 0 && int.TryParse(args[0], out port);
-            InitHostFile(dir);
+            //InitHostFile(dir);
 
             //Server_OnServiceStop(); //永远不停
             while(true)
@@ -34,11 +34,26 @@ namespace ScalerServer
 
         private static SimpleHost InitHost(string dir)
         {
-            SimpleHost host = (SimpleHost)ApplicationHost.CreateApplicationHost(typeof(SimpleHost), "/", dir);
+            SimpleHost host = (SimpleHost)CreateWorkerAppDomainWithHost("/", dir, typeof(SimpleHost));
+            //SimpleHost host = (SimpleHost)ApplicationHost.CreateApplicationHost(typeof(SimpleHost), "/", dir);
             host.Config("/", dir);
             return host;
         }
+        static object CreateWorkerAppDomainWithHost(string virtualPath, string physicalPath, Type hostType)
+        {
+            string _appId = "ScalerApp";
+            Type buildManagerHostType = typeof(System.Web.HttpRuntime).Assembly.GetType("System.Web.Compilation.BuildManagerHost");
+            ApplicationManager appManager = ApplicationManager.GetApplicationManager();
+            IRegisteredObject buildManagerHost = appManager.CreateObject(_appId, buildManagerHostType, virtualPath, physicalPath, false);
 
+            buildManagerHostType.InvokeMember("RegisterAssembly",
+                                              BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.NonPublic,
+                                              null,
+                                              buildManagerHost,
+                                              new object[] { hostType.Assembly.FullName, hostType.Assembly.Location });
+            return appManager.CreateObject(_appId, hostType, virtualPath, physicalPath, false);
+        }
+        /*
         //需要拷贝执行文件 才能创建ASP.NET应用程序域
         private static void InitHostFile(string dir)
         {
@@ -50,6 +65,6 @@ namespace ScalerServer
             if(File.Exists(target))
                 File.Delete(target);
             File.Copy(source, target);
-        }
+        }*/
     }
 }
