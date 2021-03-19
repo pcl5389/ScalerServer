@@ -142,7 +142,7 @@ namespace ScalerServer
             length = length == 0 ? data.Length : length;
             try
             {
-                if(_socket.Connected)
+                if (_socket.Connected && length > 0)
                     _socket.Send(data, offset, length, SocketFlags.None);
             }
             catch(Exception err)
@@ -162,7 +162,7 @@ namespace ScalerServer
             builder.AppendFormat("HTTP/1.1 {0} {1}\r\n", statusCode, HttpWorkerRequest.GetStatusDescription(statusCode));
             builder.AppendFormat("Server: Scaler Server/1.0\r\n");
             builder.AppendFormat("Date: {0}\r\n", DateTime.Now.ToUniversalTime().ToString("R", DateTimeFormatInfo.InvariantInfo));
-            if (contentLength > 0)
+            if (contentLength >= 0)
                 builder.AppendFormat("Content-Length: {0}\r\n", contentLength);
             if (keepAlive)
                 builder.Append("Connection: keep-alive\r\n");

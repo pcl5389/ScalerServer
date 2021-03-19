@@ -33,7 +33,6 @@ namespace ScalerServer
         }
         public void Start()
         {
-            //Console.WriteLine("listener domain:" + System.Threading.Thread.GetDomainID());
             _host.bStoping = _host.bStoped = false;
             listener = new TcpListener(IPAddress.Any, Port);
             try
@@ -43,11 +42,12 @@ namespace ScalerServer
             catch (Exception e)
             {
                 Console.WriteLine(e.Message.ToString());
+                Console.WriteLine("按任意键重新启动...");
+                Console.ReadLine();
                 return;
             }
             Console.WriteLine("Serving HTTP on 0.0.0.0 port " + Port + " ...");
             OnStart();
-            //new Thread(OnStart).Start();
         }
         private Semaphore semap = new Semaphore(5, 5000);
         public static ManualResetEvent clientConnected = new ManualResetEvent(false);
@@ -62,61 +62,31 @@ namespace ScalerServer
                     _host.bStoped = true;
                     break;
                 }
-                //Console.WriteLine("新连接" + DateTime.Now.ToString("HHmmss-fff"));
                 clientConnected.Reset();
                 listener.BeginAcceptSocket(NewConnect, listener);
                 clientConnected.WaitOne();
             }
-            /*
-            return;
-
-
-
-            while (listener != null)
-            {
-                if (listener.Pending())
-                {
-                    listener.BeginAcceptSocket(NewConnect, listener);
-                }
-                else
-                {
-                    if (_host.bStoping)
-                    {
-                        listener.Stop();
-                        Console.WriteLine("监听已停止");
-                        _host.bStoped = true;
-                        break;
-                    }
-                    Thread.Sleep(1);
-                }
-            }*/
         }
         public delegate void AsyncClientHandler(TcpClient client);
        
         private void NewConnect(IAsyncResult ar)
         {
             clientConnected.Set();
-            //初始化一个SOCKET，用于其它客户端的连接
             TcpListener server = (TcpListener)ar.AsyncState;
+            TcpClient tclient = null;
             try
             {
-                TcpClient tclient = server.EndAcceptTcpClient(ar);
+                tclient = server.EndAcceptTcpClient(ar);
                 AcceptClient(tclient);
-                //tclient.
-                //AsyncClientHandler handler = new AsyncClientHandler(AcceptClient);
-                //handler.BeginInvoke(tclient, null, handler);
             }
             catch (Exception err)
             {
                 Console.WriteLine(err.Message);
-                /*
-                 if (tclient != null && tclient.Connected)
+                if (tclient != null && tclient.Connected)
                 {
-                    tclient.Close();
+                    tclient.Client.Shutdown(SocketShutdown.Both);
+                    tclient.Client.Close();
                 }
-                if (tclient.Client != null)
-                    tclient.Client.Dispose();
-                 */
             }
         }
         public void AcceptClient(TcpClient tclient)
@@ -149,7 +119,6 @@ namespace ScalerServer
 
         private void EndReader(IAsyncResult ir)
         {
-            //DateTime dt0 = DateTime.Now;
             Sockets sks = ir.AsyncState as Sockets;
             RequestInfo req = null;
             if (sks != null)
@@ -222,9 +191,7 @@ namespace ScalerServer
                                 {
                                     req.RemoteEndPoint = sks.Ip;
                                     req.LocalEndPoint = sks.Lp;
-                                    //DateTime dt00 = DateTime.Now;
                                     _host.ProcessRequest(ref processor, ref req);
-                                    //Console.WriteLine((DateTime.Now - dt00).TotalMilliseconds.ToString());
                                 }
                             }
                             if (req.KeepAlive)
