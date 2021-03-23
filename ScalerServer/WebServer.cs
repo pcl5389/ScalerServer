@@ -28,7 +28,7 @@ namespace ScalerServer
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine("Host 启动失败！" + e.Message);
             }
         }
         public void Start()
@@ -41,7 +41,7 @@ namespace ScalerServer
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message.ToString());
+                Console.WriteLine("服务启动失败！" + e.Message.ToString());
                 Console.WriteLine("按任意键重新启动...");
                 Console.ReadLine();
                 return;
@@ -81,7 +81,7 @@ namespace ScalerServer
             }
             catch (Exception err)
             {
-                Console.WriteLine(err.Message);
+                Console.WriteLine("新连接接入失败！" + err.Message);
                 if (tclient != null && tclient.Connected)
                 {
                     tclient.Client.Shutdown(SocketShutdown.Both);
