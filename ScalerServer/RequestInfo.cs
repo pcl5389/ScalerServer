@@ -59,7 +59,7 @@ namespace ScalerServer
             Protocol = actions[2];
 
             string[] path = RawUrl.Split('?');
-            if (path[0].IndexOf('.') == -1 && !path[0].EndsWith("/"))
+            if (path[0].IndexOf('.') == -1 && !path[0].EndsWith("/", StringComparison.Ordinal))
                 FilePath = HttpUtility.UrlDecode(path[0] + "/");
             else
                 FilePath = HttpUtility.UrlDecode(path[0]);

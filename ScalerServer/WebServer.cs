@@ -167,14 +167,14 @@ namespace ScalerServer
                                 {
                                     processor.WriteFileResponse(req.FilePath, staticContentType, req.GZip, req.KeepAlive);
                                 }
-                                else if (req.FilePath.EndsWith("/"))  //目录
+                                else if (req.FilePath.EndsWith("/", StringComparison.Ordinal))  //目录
                                 {
                                     string file = defaultDocument(_host.PhysicalDir, new string[] { "default.htm", "default.html", "index.htm", "index.html", "default.aspx", "index.aspx" });
                                     if (string.IsNullOrEmpty(file))
                                     {
                                         processor.WriteDirResponse(req.FilePath, req.KeepAlive);
                                     }
-                                    else if(file.EndsWith(".aspx"))
+                                    else if(file.EndsWith(".aspx", StringComparison.Ordinal))
                                     {
                                         req.RawUrl = req.RawUrl + file;
                                         req.FilePath = req.FilePath + file;

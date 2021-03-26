@@ -115,7 +115,7 @@ namespace ScalerServer
 #if DEBUG
             DateTime dt0 = DateTime.Now;
 #endif
-            if (!header.uri.AbsolutePath.EndsWith("/")) //文件
+            if (!header.uri.AbsolutePath.EndsWith("/", StringComparison.Ordinal)) //文件
             {
                 FileInfo file = new FileInfo(BasicPath + header.uri.AbsolutePath.Substring(1));
                 if (file.Name.IndexOf(".") > -1)
@@ -127,7 +127,7 @@ namespace ScalerServer
                 }
             }
             string path = BasicPath + header.uri.AbsolutePath;
-            if (!header.uri.AbsolutePath.EndsWith("/"))
+            if (!header.uri.AbsolutePath.EndsWith("/", StringComparison.Ordinal))
             {
                 path = path + "/";
             }
@@ -172,9 +172,9 @@ namespace ScalerServer
                     sb.AppendLine(string.Format("HTTP/1.1 {0} OK", status));
                     sb.AppendLine("Server: ScalerServer");
                     sb.AppendLine(string.Format("Date: {0}", DateTime.Now.ToString("r")));
-                    if (content.StartsWith("<"))
+                    if (content.StartsWith("<", StringComparison.Ordinal))
                         sb.AppendLine("Content-Type: text/xml");
-                    else if (content.StartsWith("{") && content.EndsWith("}"))
+                    else if (content.StartsWith("{", StringComparison.Ordinal) && content.EndsWith("}", StringComparison.Ordinal))
                         sb.AppendLine("Content-Type: application/json");
                     else
                         sb.AppendLine("Content-Type: text/html");
