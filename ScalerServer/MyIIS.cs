@@ -52,7 +52,7 @@ namespace ScalerServer
         static readonly string BasicPath = AppDomain.CurrentDomain.BaseDirectory + "wwwroot/";
         static readonly string Exts = (".htm|.html|.php|.gif|.jpg|.jpeg|.png|.bmp|.ico|.rar|.css|.js|.zip|.java|.jar|.txt|.flv|.swf|.mid|.doc|.ppt|.xls|.pdf|.txt|.mp3|.wma|");
         //private static Regex line0 = new Regex("^(GET|POST) .+? HTTP/(\\.|\\d)+$", RegexOptions.Compiled);
-        static Regex regLen = new Regex("Content-Length: \\d*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        static Regex regLen = new Regex("Content-Length: \\d*", RegexOptions.IgnoreCase);
         public static RequestInfo Analyze(MemoryStream ms, ref int total)
         {
             ms.Position = 0;

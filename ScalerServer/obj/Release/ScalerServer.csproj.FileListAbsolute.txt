@@ -4,3 +4,4 @@ D:\Projects\ScalerServer\ScalerServer\bin\Release\IIS_Server.exe
 D:\Projects\ScalerServer\ScalerServer\bin\Release\IIS_Server.pdb
 D:\Projects\ScalerServer\ScalerServer\obj\Release\IIS_Server.exe
 D:\Projects\ScalerServer\ScalerServer\obj\Release\IIS_Server.pdb
+D:\Projects\ScalerServer\ScalerServer\obj\Release\ScalerServer.csprojAssemblyReference.cache
