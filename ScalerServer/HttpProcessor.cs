@@ -11,29 +11,28 @@ namespace ScalerServer
 {
     public class HttpProcessor : MarshalByRefObject
     {
-        const int FILE_BLOCK_SIZE = 1024;
         public Socket _socket;
         private SimpleHost _host;
-        private static readonly Dictionary<string, string> staticFileContentType = new Dictionary<string, string>()
+        static readonly Dictionary<string, string> staticFileContentType = new Dictionary<string, string>()
         {
-            {"htm", "text/html"},
-            {"html", "text/html"},
-            {"xml", "text/xml"},
-            {"txt", "text/plain"},
-            {"css", "text/css"},
-            {"js", "application/x-javascript"},
-            {"png", "image/png"},
-            {"gif", "image/gif"},
-            {"jpg", "image/jpg"},
-            {"jpeg", "image/jpeg"},
-            {"zip", "application/zip"},
-            {"ico", "image/x-icon"},
-            {"ttf", "application/octet-stream"},
-            {"woff", "font/x-woff"},
-            {"woff2", "application/x-font-woff"},
-            {"eot", "application/vnd.ms-fontobject"},
-            {"svg", "image/svg+xml"},
-            {"swf", "application/x-shockwave-flash"}
+            {".htm", "text/html"},
+            {".html", "text/html"},
+            {".xml", "text/xml"},
+            {".txt", "text/plain"},
+            {".css", "text/css"},
+            {".js", "application/x-javascript"},
+            {".png", "image/png"},
+            {".gif", "image/gif"},
+            {".jpg", "image/jpg"},
+            {".jpeg", "image/jpeg"},
+            {".zip", "application/zip"},
+            {".ico", "image/x-icon"},
+            {".ttf", "application/octet-stream"},
+            {".woff", "font/x-woff"},
+            {".woff2", "application/x-font-woff"},
+            {".eot", "application/vnd.ms-fontobject"},
+            {".svg", "image/svg+xml"},
+            {".swf", "application/x-shockwave-flash"}
         };
         public HttpProcessor(SimpleHost host, Socket socket)
         {
@@ -42,19 +41,18 @@ namespace ScalerServer
         }
         public static string GetStaticContentType(RequestInfo requestInfo)
         {
-            int dotStart = requestInfo.FilePath.LastIndexOf('.') + 1;
-            if (dotStart > 0)
-            {
-                string extension = requestInfo.FilePath.Substring(dotStart);
-                if (staticFileContentType.TryGetValue(extension.ToLower(), out string ext))
-                    return ext;
-            }
+            int l;
+            string file_ext= (l = requestInfo.FilePath.LastIndexOf('.')) == -1 ? "" : requestInfo.FilePath.Substring(l);
+            if (staticFileContentType.TryGetValue(file_ext.ToLowerInvariant(), out string ext))
+                return ext;
             return string.Empty;
         }
+        const int MAX_FILE_LENGTH = 10 * 1024 * 1024;
         public void WriteFileResponse(string filePath, string contentType, bool gZip, bool keepalive)
         {
             string fullPath = Path.Combine(_host.PhysicalDir, filePath.TrimStart('/'));
-            if (!File.Exists(fullPath))
+            FileInfo fi = new FileInfo(fullPath);
+            if (!fi.Exists)
                 SendResponse(200, Encoding.UTF8.GetBytes("404"), null, keepalive); //SendErrorResponse(404, keepalive);
             else
             {
@@ -63,50 +61,38 @@ namespace ScalerServer
                 header["Expires"] = DateTime.Now.AddDays(3).GetDateTimeFormats('r')[0].ToString();
                 header["Cache-Control"] = "max-age=259200";
 
-                using (FileStream fs = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                if (fi.Length == 0)
                 {
-                    if (fs.Length > int.MaxValue)
+                    SendResponse(200, Encoding.UTF8.GetBytes(""), null, keepalive);
+                    return;
+                }
+                if (fi.Length > MAX_FILE_LENGTH)
+                {
+                    SendResponse(500, Encoding.UTF8.GetBytes("文件大小超过10M！"), null, keepalive);
+                    return;
+                }
+                if (gZip && fi.Length > 512 && fi.Length < MAX_FILE_LENGTH)
+                {
+                    header["Content-Encoding"] = "gzip";
+                    using (FileStream fs = fi.OpenRead())
                     {
-                        Close();
-                        return;
-                    }
-                    int length = (int)fs.Length;
-                    if (gZip && fs.Length > 512 && fs.Length < 2097152)
-                    {
-                        if (gZip)
-                            header["Content-Encoding"] = "gzip";
                         using (MemoryStream ms = new MemoryStream())
                         {
                             using (System.IO.Compression.GZipStream gZipStream = new System.IO.Compression.GZipStream(ms, System.IO.Compression.CompressionMode.Compress, true))
                             {
-                                byte[] buffer = new byte[FILE_BLOCK_SIZE];
-                                int contentLength = fs.Read(buffer, 0, FILE_BLOCK_SIZE);
-
-                                while (contentLength > 0)
-                                {
-                                    gZipStream.Write(buffer, 0, contentLength);
-                                    contentLength = fs.Read(buffer, 0, FILE_BLOCK_SIZE);
-                                }
+                                fs.CopyTo(gZipStream);
                             }
                             string headers = BuildHeader(200, header, (int)ms.Length, keepalive);
                             SendResponse(Encoding.UTF8.GetBytes(headers));
                             SendResponse(ms.ToArray());
-                            ms.SetLength(0);
-                            ms.Capacity = 0;
                         }
                     }
-                    else
-                    {
-                        string headers = BuildHeader(200, header, length, keepalive);
-                        SendResponse(Encoding.UTF8.GetBytes(headers));
-                        byte[] buffer = new byte[FILE_BLOCK_SIZE];
-                        int contentLength = fs.Read(buffer, 0, FILE_BLOCK_SIZE);
-                        while (contentLength > 0 && _socket.Connected)
-                        {
-                            SendResponse(buffer, 0, contentLength);
-                            contentLength = fs.Read(buffer, 0, FILE_BLOCK_SIZE);
-                        }
-                    }
+                }
+                else
+                {
+                    string headers = BuildHeader(200, header, (int)fi.Length, keepalive);
+                    SendResponse(Encoding.UTF8.GetBytes(headers));
+                    _socket.SendFile(fullPath);
                 }
             }
         }

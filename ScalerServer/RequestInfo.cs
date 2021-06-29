@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Net;
 using System.Runtime.Remoting.Lifetime;
@@ -18,7 +19,7 @@ namespace ScalerServer
 
         public string HttpMethod { get; set; }
 
-        public NameValueCollection Headers { get; private set; }
+        public Dictionary<string, string> Headers { get; private set; }
 
         public IPEndPoint RemoteEndPoint { get; set; }
 
@@ -65,7 +66,7 @@ namespace ScalerServer
                 FilePath = HttpUtility.UrlDecode(path[0]);
             if (path.Length == 2)
                 QueryString = path[1];
-            Headers = new NameValueCollection();
+            Headers = new Dictionary<string, string>();
             for (int i = 1; i < lines.Length; i++)
             {
                 string line = lines[i];

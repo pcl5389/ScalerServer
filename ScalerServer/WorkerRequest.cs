@@ -39,22 +39,21 @@ namespace ScalerServer
 
         private void ParseRequestHeaders()
         {
-            _knownRequestHeaders=new string[40];
-            NameValueCollection unknownHeaders=new NameValueCollection();
-            for (int i = 0; i < _requestInfo.Headers.Count; i++)
+            _knownRequestHeaders = new string[40];
+            Dictionary<string, string> unknownHeaders = new Dictionary<string, string>();
+            foreach (var item in _requestInfo.Headers)
             {
-                string name = _requestInfo.Headers.Keys[i];
-                string value = _requestInfo.Headers[i];
-                int index = GetKnownRequestHeaderIndex(name);
+                int index = GetKnownRequestHeaderIndex(item.Key);
                 if (index >= 0)
-                    _knownRequestHeaders[index] =value;
+                    _knownRequestHeaders[index] = item.Value;
                 else
-                    unknownHeaders.Add(name,value);
+                    unknownHeaders.Add(item.Key, item.Value);
             }
-            _unknownRequestHeaders=new string[unknownHeaders.Count][];
-            for (int i = 0; i < unknownHeaders.Count; i++)
+            _unknownRequestHeaders = new string[unknownHeaders.Count][];
+            int i = 0;
+            foreach (var item in unknownHeaders)
             {
-                _unknownRequestHeaders[i] = new[] {unknownHeaders.Keys[i], unknownHeaders[i]};
+                _unknownRequestHeaders[i++] = new string[] {item.Key, item.Value };
             }
         }
 
@@ -105,10 +104,10 @@ namespace ScalerServer
 
         public override string GetUnknownRequestHeader(string name)
         {
-            foreach (string key in _requestInfo.Headers)
+            foreach (var item in _requestInfo.Headers)
             {
-                if (string.Compare(name, key, StringComparison.OrdinalIgnoreCase) == 0)
-                    return _requestInfo.Headers[key];
+                if (item.Key.Equals(name, StringComparison.OrdinalIgnoreCase))
+                    return item.Value;
             }
             return null;
         }
@@ -256,8 +255,6 @@ namespace ScalerServer
                         {
                             gms.Position = 0;
                             _processor.SendResponse(gms.ToArray());
-                            gms.SetLength(0);
-                            gms.Capacity = 0;
                         }
                     }
                 }
@@ -272,8 +269,6 @@ namespace ScalerServer
                     {
                         ms.Position = 0;
                         _processor.SendResponse(ms.ToArray());
-                        ms.SetLength(0);
-                        ms.Capacity = 0;
                     }
                 }
             }
@@ -284,7 +279,6 @@ namespace ScalerServer
                 if (!_requestInfo.KeepAlive)
                     _processor.Close();
             }
-            GC.Collect(0, GCCollectionMode.Optimized);
         }
 
         public override void EndOfRequest()
